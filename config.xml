@@ -1,0 +1,16 @@
+<?xml version       ="1.0" encoding="UTF-8" ?>
+    <widget xmlns   = "http://www.w3.org/ns/widgets"
+        xmlns:gap   = "http://phonegap.com/ns/1.0"
+        id          = "com.phonegap.estacionamiento"
+        versionCode = "10" 
+        version     = "1.0.0"   >
+        <name>EstacionamientoCUCEI</name>
+
+        <description>
+            Proyecto de programación web.
+            Alumno: Néstor Eduardo Navarro Arizaga.
+        </description>{
+        
+        <author email="nestor.arizaga@alumnos.udg.mx"></author>
+
+    </widget>
