@@ -4,530 +4,12 @@
         <meta charset="utf-8">
         <meta name="viewport" content="initial-scale=1, maximum-scale=1, user-scalable=no, width=device-width">
         <title>App</title>
-        
-	   <style> 
-  	     #map {
-            height: 88%;
-             width: 100%;
-             margin-left:auto;
-             margin-right:auto;
- 
-          }
 
-          html, body {
-            height: 100%;
-            margin: 0;
-            padding: 0;
-          }
-        </style> 
-        
+        <link rel="stylesheet" href="main.css" type="text/css">      
         <link rel="stylesheet" href="https://unpkg.com/onsenui/css/onsenui.css">
-        <link rel="stylesheet" href="https://unpkg.com/onsenui/css/onsen-css-components.min.css">
-        
-        <script src="https://unpkg.com/onsenui/js/onsenui.min.js"></script>
-
-        
-        
-        <script >
-            var a = "-1";
-            var bandera = 0;
-        //----Funcion para mostrar el pop up
-        var showPopover = function(target) {
-              document
-                .getElementById('popover')
-                .show(target);
-            };
-        //----Funcion para ocultar el pop up
-        var hidePopover = function() {
-              document
-                .getElementById('popover')
-                .hide();
-            };
-        
-        //-----Función Verificar usuario en Siiau
-        function verificarUDG(){
-            
-            var cod = document.getElementById("valor1").value;
-            var nip = document.getElementById("valor2").value;
-            
-            var xhttp = new XMLHttpRequest();
-                
-                xhttp.onreadystatechange = function(){
-                    
-                    if(this.readyState==4 && this.status == 200){
-                      
-                        var respuesta = this.responseText;
-                        var verificar = parseInt(respuesta);  
-                        if(cod != "" && nip != ""){
-                            if(verificar == 0){
-                                selectParking();
-                            }else{
-                                var datos = respuesta.split(',');   
-
-                                document.getElementById("nombre").innerHTML=datos[2];
-                                console.log(datos[2]);
-               
-                                selectParking_udg();
-                            }  
-                        }else{
-                            ons.notification.alert("¡Asegurate que ni un campo este vacío!"); 
-                        }
-                    }
-                };
-            xhttp.open("GET","https://dcc.000webhostapp.com/2018/datosudeg.php?codigo="+cod+"&nip="+nip,true);
-            xhttp.send();
-        }
-            
-        //-----Función Ver Verificar usuario en el Estacionamiento que no sea de la udg
-        function selectParking(){
-            var cod = document.getElementById("valor1").value;
-            var nip = document.getElementById("valor2").value;
-            
-             var xhttp = new XMLHttpRequest();
-                
-                xhttp.onreadystatechange = function(){
-                    
-                    if(this.readyState==4 && this.status == 200){
-                      
-                        var respuesta = this.responseText;
-                        var verificar = parseInt(respuesta);  
-                            if(verificar == 0){
-                                inscribirse();
-                            }else{
-
-                                var datos = respuesta.split(',');
-                                var nombre = datos[2];
-                                var placas = datos[3];
-                                console.log("Datos Estacionamiento: "+datos)
-                                    
-                                localStorage.setItem("Cod", cod);
-                                getPlacas();
-
-                                var myNavigator = document.getElementById("myNavigator");
-
-                                myNavigator.replacePage("pageMap.html").then(function(){
-
-                                    document.getElementById("cent").innerHTML = "Usuario: " + cod;
-
-                                    document.getElementById("valor1").value = localStorage.getItem("Cod");
-                                });             
-                            }
-
-                    }
-                };
-            xhttp.open("GET","https://nestornavarizga.000webhostapp.com/selectUser.php?Codigo="+cod+"&Password="+nip,true);
-            xhttp.send();
-        }   
-        //-----Función Verificar usuario en el Estacionamiento que sea de la udg
-        function selectParking_udg(){
-            var cod = document.getElementById("valor1").value;
-            
-             var xhttp = new XMLHttpRequest();
-                
-                xhttp.onreadystatechange = function(){
-                    
-                    if(this.readyState==4 && this.status == 200){
-                      
-                        var respuesta = this.responseText;
-                        var verificar = parseInt(respuesta);  
-                        
-                        if(verificar == 0){
-                            //Muestra el pop up en el boton
-                            showPopover(document.getElementById("boton")); 
-                        }else{
-                            
-                            var datos = respuesta.split(',');
-                            var nombre = datos[2];
-                            var placas = datos[3];
-                            console.log("Dsatos Estacionamiento: "+datos)
-                            
-                            localStorage.setItem("Cod", cod);
-                            getPlacas();
-                                    
-                            var myNavigator = document.getElementById("myNavigator");
-                            
-                            myNavigator.replacePage("pageMap.html").then(function(){
-                                
-                                document.getElementById("cent").innerHTML = "Usuario: " + cod;
-                                document.getElementById("Placas").innerHTML = datos[3];
-                                
-                                document.getElementById("valor1").value = localStorage.getItem("Cod");
-                               // document.getElementById("placas").value = localStorage.getItem("Placas");
-                            });             
-                        }
-                    }
-                };
-            xhttp.open("GET","https://nestornavarizga.000webhostapp.com/selectUser.php?Codigo="+cod+"&Password=",true);
-            xhttp.send();
-        }
-        //----Función Continuar 
-        function continuar(){
-            
-            var nombre = document.getElementById("nombre").innerHTML;
-            var codigo = document.getElementById("valor1").value;
-            var placas = document.getElementById("placas").value;
-            var telefono = document.getElementById("telefono").value;
-            var patronPlaca = new RegExp("(^[A-Z]{3}-[1-9]{2}-[0-9]{2}$)|(^[A-Z]{2}-[0-9]{2}-[0-9]{3}$)");
-            console.log(nombre);
-            //Esconder el pop para poder ver el mensaje
-            hidePopover();
-            
-            //Verificamos que el ingreso los datos en los campos
-            if(placas == "" && telefono == ""){
-                ons.notification.alert("¡No debe dejar campos vacio!");
-            }else{
-                if(patronPlaca.test(pla)){
-                    if(telefono != ""){
-                        
-                        var xhttp = new XMLHttpRequest();
-                        
-                        xhttp.onreadystatechange = function(){
-                            
-                            if(this.readyState==4 && this.status == 200){
-                                
-                                var respuesta = this.responseText;
-                                var verificar = parseInt(respuesta);  
-
-                                if(verificar == 0){
-                                    ons.notification.alert("¡Error en su registro!");
-                                }else{
-                                    
-                                    localStorage.setItem("Cod", codigo);
-                                    getPlacas();
-                                    console.log(this.responseText);
-                                    
-                                    var myNavigator = document.getElementById("myNavigator");
-                                    
-                                    myNavigator.replacePage("pageMap.html").then(function(){
-                                        
-                                       document.getElementById("cent").innerHTML = "Usuario: " + codigo;
-                                
-                                        document.getElementById("valor1").value = localStorage.getItem("Cod");
-                                        
-                                    });
-                                }
-                            }
-                        };
-                        
-                    xhttp.open("GET","http://cuceiMobile.tech/Escuela/altaU.php?codigo=" +codigo+"&nombre="+nombre+"&placas="+placas+"&telefono="+telefono,true);
-                    xhttp.send();
-                
-                    }else{
-                        ons.notification.alert("¡El campo telefono está vacío!");
-                    }
-                }else{
-                    ons.notification.alert("Las placas no tienen el orden correcto.\nEjemplo: ABC-12-12 o AB-12-123.");
-                }
-            }      
-        }
-        
-        //----Función Registrar
-        function registrar(){
-          
-            var cod = Math.round(Math.random()*10000);//Numeros aleatorios de 0 a 10000
-            //var cod = document.getElementById("valor1").value;
-            
-            var nom = document.getElementById("nomb").value;
-            var pla = document.getElementById("placas").value;
-            var tel = document.getElementById("telefono").value;
-            var con = document.getElementById("passw").value;
-            var patronPlaca = new RegExp("(^[A-Z]{3}-[1-9]{2}-[0-9]{2}$)|(^[A-Z]{2}-[0-9]{2}-[0-9]{3}$)");
-            
-            if(cod == ""){
-               var cod = Math.round(Math.random()*10000);//Numeros aleatorios de 0 a 10000
-                console.log(cod);
-            }
-            
-            if(nom == "" && pla == "" && tel == "" && con == ""){
-                ons.notification.alert("¡No debe dejar campos vacio!");
-            }else{
-                if(nom != ""){
-                    if(patronPlaca.test(pla)){
-                        if(tel != ""){
-                            if(con != ""){
-                                    var xhttp = new XMLHttpRequest();
-                                
-                                    xhttp.onreadystatechange = function(){
-                                    
-                                    if(this.readyState==4 && this.status == 200){
-                                        
-                                        var respuesta = this.responseText;
-                                        var verificar = parseInt(respuesta);  
-
-                                        if(verificar == 0){
-                                            ons.notification.alert("¡Error de registro!");
-                                        }else{
-                                            console.log(pla);
-                                            console.log(nom);
-                                            localStorage.setItem("Nom", nom);
-                                            localStorage.setItem("Pssw", con);
-                                            localStorage.setItem("Cod", cod);
-                                            getPlacasRegistro();
-                                            //console.log(this.responseText);
-                                    
-                                            var myNavigator = document.getElementById("myNavigator");
-                                            
-                                            myNavigator.replacePage("pageMap.html").then(function(){
-                                                document.getElementById("cent").innerHTML += "Usuario: " + cod;
-                                               
-                                                document.getElementById("cent").value = localStorage.getItem("Cod");
-                                               
-                                                     
-                                            });
-                                        }
-                                    }
-                                };
-                                
-                                xhttp.open("GET","http://cuceiMobile.tech/Escuela/altaU.php?codigo=" +cod+"&nombre="+nom+"&placas="+pla+"&telefono="+tel+"&password="+con,true);
-                                xhttp.send();
-                                
-                            }else{
-                                ons.notification.alert("Contraseña no ingresada");
-                            }
-                        }else{
-                            ons.notification.alert("Telefono no ingresado");
-                        }
-                    }else{
-                        ons.notification.alert("Las placas no tienen el orden correcto.\nEjemplo: ABC-12-12 o AB-12-123.");
-                    }
-                }else{
-                    ons.notification.alert("Nombre no ingresado");
-                }
-            }  
-        }
-            
-        //---Función que cambia a la pagina de inscribirse
-        function inscribirse(){
-            var myNavigator = document.getElementById("myNavigator");
-            myNavigator.replacePage("pageInsc.html");
-        }
-        
-        //----Funcion para cambiar del Splash al Login jnj
-        function cambiar(){
-                //Ejecuta una función, después de esperar un número específico de milisegundos.
-                setTimeout(function(){
-                var myNavigator = document.getElementById("myNavigator");
-                myNavigator.replacePage("pageLogin.html") },2000);
-        }
-            
-        //-----Función persistencia de datos d
-       function obtener_sessionStorage(){
-            /*Obtener datos almacenados*/
-            
-            var codigo = localStorage.getItem("Cod");
-            var placas = localStorage.getItem("Plc");
-           
-            console.log("inicioSesion"+codigo)
-            console.log("inicioSesion"+placas)
-              
-            if(codigo != null || placas != null){
-                var myNavigator = document.getElementById("myNavigator");
-                getPlacas();
-                placas = localStorage.getItem("Plc");
-                              
-                myNavigator.replacePage("pageMap.html").then(function(){
-                    
-                    document.getElementById("cent").innerHTML = "Usuario: " +codigo; 
-                    
-                   //document.getElementById("valor1").value = localStorage.getItem("Cod");
-                    document.getElementById("Placas").innerHTML = localStorage.getItem("Plc");
-                    
-                });
-                   
-            }else{
-                var myNavigator = document.getElementById("myNavigator");
-                myNavigator.pushPage("splash.html");
-            }
-        }
-        
-        function salir(){
-            localStorage.removeItem("Cod");
-            localStorage.clear();
-            bandera=0;
-            var myNavigator = document.getElementById("myNavigator");
-             myNavigator.replacePage ("pageLogin.html")
-            
-        }
-        function inicio(){
-            var myNavigator = document.getElementById("myNavigator");
-             myNavigator.replacePage ("pageLogin.html")
-        }
-            
-        document.addEventListener("deviceready", onDeviceReady, false);
-            
-        function onDeviceReady(){
-                //alert("navigator.geolocation works well");
-
-                //var switch1 = document.getElementById("switch-1");
-                    //ons.notification.alert('Value is ' + switch1.checked);
-                navigator.geolocation.getCurrentPosition(geolocationSuccess, [geolocationError], [geolocationOptions]);
-        }
-
-        function CapturaGps(){
-                bandera = 1;
-                navigator.geolocation.getCurrentPosition(onSuccess, onError);          
-        }
-        function eliminarGps(){
-                if(bandera==0){
-                     alert('¡Debe ocupar un lugar!');
-                }else{
-                                    getPlacas();
-               var placas = localStorage.getItem("Plc");
-  
-                var xhttp = new XMLHttpRequest();
-
-                xhttp.onreadystatechange = function(){
-
-                    if(this.readyState==4 && this.status == 200){
-
-                        var respuesta = this.responseText;
-                        var verificar = parseInt(respuesta);  
-
-                        if(verificar == 0){
-
-                            alert("¡Error con el servidor!");
-                        }else{
-                            if(respuesta == 1){
-                                bandera=0;
-                                eliminarL();
-                                alert('Su lugar ahora esta libre.\n ¡Tenga un exelente día!');
-                                
-                                //actualizar();/
-                            }else{
-                                alert("¡Ups, ocurrio un error!");
-                            }          
-                        }
-                    }
-                };
-                xhttp.open("GET","https://nestornavarizga.000webhostapp.com/deleteLuegarE.php?placas="+placas,true);
-                xhttp.send();
-                }
-
-        }
-        function actualizar(){location.reload(true);}
-        function onError(error){
-                alert('code: '  + error.code +    '\n'+
-                      'message' + error.message + '\n');
-
-        }
-        function getPlacas(){
-            var cod = localStorage.getItem("Cod");
-            //alert("getPlacas" + cod);
-            
-             var xhttp = new XMLHttpRequest();
-                
-                xhttp.onreadystatechange = function(){
-                    
-                    if(this.readyState==4 && this.status == 200){
-                      
-                        var respuesta = this.responseText;
-                        var verificar = parseInt(respuesta);  
-                        
-                        if(verificar == 0){
-                            alert("Error al recuperar las placas");
-                        }else{
-                            
-                            var datos = respuesta.split(',');
-                            var placas = datos[3];
-                            localStorage.setItem("Plc", placas);
-
-                        }
-                    }
-                };
-            xhttp.open("GET","https://nestornavarizga.000webhostapp.com/selectUser.php?Codigo="+cod+"&Password=",true);
-            xhttp.send();
-        }
-        function getPlacasRegistro(){
-            console.log("Entrooo")
-            var cod = localStorage.getItem("Cod");
-            var pasw = localStorage.getItem("Pssw");
-            //alert("getPlacas" + cod);
-            
-             var xhttp = new XMLHttpRequest();
-                
-                xhttp.onreadystatechange = function(){
-                    
-                    if(this.readyState==4 && this.status == 200){
-                      
-                        var respuesta = this.responseText;
-                        var verificar = parseInt(respuesta);  
-                        
-                        if(verificar == 0){
-                            alert("Error al recuperar las placas");
-                        }else{
-                            console.log("Entro 2")
-                            var datos = respuesta.split(',');
-                            console.log("Respuesta"+respuesta);
-                            var placas = datos[3];
-                            console.log("Placas"+placas);
-                            localStorage.setItem("Plc", placas);
-
-                        }
-                    }
-                };
-            xhttp.open("GET","https://nestornavarizga.000webhostapp.com/selectUser.php?Codigo="+cod+"&Password="+pasw,true);
-            xhttp.send();
-        }
-
-        var onSuccess = function(position){
-                /*alert('Latitude: '  + position.coords.latitude  + '\n'+
-                      'Longitude: ' + position.coords.longitude + '\n');*/
-            getPlacas();
-            var placas = localStorage.getItem("Plc");
-            var lat = position.coords.latitude;
-            var lon = position.coords.longitude;
-            var ocupado = 1;
-            
-             var xhttp = new XMLHttpRequest();
-                
-                xhttp.onreadystatechange = function(){
-                    
-                    if(this.readyState==4 && this.status == 200){
-                      
-                        var respuesta = this.responseText;
-                        var verificar = parseInt(respuesta);  
-                        
-                        if(verificar == 0){
-                            //Muestra el pop up en el boton
-                            alert("¡Error con el servidor!");
-                        }else{
-                            if(respuesta == 1){
-                                agregarL();
-                               alert('El proceso ha sido un exito.  ¡Disfruta tus clases en CUCEI!');
-                                 
-                               //actualizar();
-                            
-                            }else{
-                                alert("¡Ups, ocurrio un error!");
-                            }          
-                        }
-                    }
-                };
-            xhttp.open("GET","https://nestornavarizga.000webhostapp.com/insertLugarE.php?placas="+placas+"&lat="+lat+"&lon="+lon+"&ocupado=1",true);
-            xhttp.send();
-            
-        };
-        function agregarL(){
-               // CapturaGps();
-                for(a in array_marcadores){//Elimina los marcadores
-                    array_marcadores[a].setMap(null);
-                }
-                array_marcadores = [];
-                //navigator.geolocation.getCurrentPosition(onSuccess, onError);
-                //alert("Hola, regresé");
-                loadmap();
-        }
-
-        function eliminarL(){
-                for(a in array_marcadores){//Elimina los marcadores
-                    array_marcadores[a].setMap(null);
-                }
-                array_marcadores = [];
-                loadmap();
-        }
-      
-        </script>
-                
+        <link rel="stylesheet" href="https://unpkg.com/onsenui/css/onsen-css-components.min.css">   
+             
+        <script src="https://unpkg.com/onsenui/js/onsenui.min.js"></script>          
     </head>
     <body onload="obtener_sessionStorage()">
         <ons-navigator swipeable id="myNavigator"></ons-navigator>
@@ -559,13 +41,13 @@
         <template id="pageLogin.html">  
             <ons-page id="pageLogin">
                 <ons-toolbar>
-                    <div class="center">Inicio</div>
+                    <div class="center">Inicio</div>         
                 </ons-toolbar>
-                <ons-card>
+                <ons-card >
                     <center>
                         <h2>Estacionamiento</h2>
                         <h3>CUCEI</h3>
-                        <img  src = "https://image.freepik.com/vector-gratis/diseno-zona-estacionamiento_24911-989.jpg" height="200" width="250" onload="pageLogin.html">
+                        <img  src = "https://image.freepik.com/vector-gratis/diseno-zona-estacionamiento_24911-989.jpg" height="200" width="290" onload="pageLogin.html">
                             <br>
                             <br>
                         <ons-input input-id="valor1" placeholder="Codigo" type="tel" modifier="underbar"></ons-input>
@@ -573,9 +55,9 @@
                             <br>
                         <ons-input input-id="valor2" placeholder="NIP" type="password" modifier="underbar"></ons-input>
                             <br>
-                        <ons-button id = "boton" style="margin: 6px 0" onclick="verificarUDG()" ><ons-ripple ></ons-ripple >Enviar</ons-button> 
+                        <ons-button id = "boton" style="margin: 6px 0" onclick="verificarUDG()" ><ons-ripple ></ons-ripple ><ons-icon icon="md-car"></ons-icon> Enviar</ons-button> 
                              <br>
-                        <ons-button modifier="quiet" style="margin: 6px 0" onclick = "inscribirse()">Inscribirse</ons-button>
+                        <ons-button modifier="quiet" style="margin: 6px 0" onclick = "inscribirse()"><ons-icon icon="md-face"></ons-icon> Inscribirse</ons-button>
                     </center>
                 </ons-card>
              </ons-page>
@@ -586,42 +68,31 @@
             <ons-page id = "pageInsc">
                 <ons-toolbar>
                     <div class="left">
-                        <ons-toolbar-button style="font-size:8pt" onclick="inicio()">Inicio</ons-toolbar-button>
+                        <ons-toolbar-button style="font-size:11pt" onclick="inicio()"><ons-icon icon="md-home"></ons-icon> Inicio</ons-toolbar-button>
                     </div>
                 </ons-toolbar>
-                <center>
-                    <h2>Ingrese los datos</h2>
+                <ons-card>
+                     <center>
+                        <h2>Registro</h2>
+                            <br>
+                        <img  src = "https://image.flaticon.com/icons/png/512/16/16480.png" height="100" width="100">
                         <br>
-                    <img  src = "https://image.flaticon.com/icons/png/512/16/16480.png" height="100" width="100">
                         <br>
-                    <ul class="list" style="width: 250px; height: 200px;">
-                        <li class="list-item">
-                            <div class="list-item__center">
-                              <ons-input input-id = "nomb" placeholder = "Nombre" type = "text" ></ons-input>
-                            </div>
-                        </li>
-                            
-                        <li class="list-item">
-                            <div class="list-item__center">
-                              <ons-input input-id = "placas" placeholder = "Placas" type = "text" ></ons-input>
-                            </div>
-                        </li>
-                            
-                        <li class="list-item">
-                            <div class="list-item__center">
-                              <ons-input input-id = "telefono" placeholder = "Telefono" type = "number" ></ons-input>
-                            </div>
-                        </li>
-                        
-                        <li class="list-item">
-                            <div class="list-item__center">
-                              <ons-input input-id = "passw" placeholder = "Contraseña" type = "password"></ons-input>
-                            </div>
-                        </li>
-                    </ul>                          
-                    <br>
-                    <ons-button  onclick = "registrar()">Registrar</ons-button>
-                </center>
+                        <ons-input input-id = "nomb" placeholder = "Nombre" type = "text" ></ons-input>
+                         <br>
+                        <br>
+                        <ons-input input-id = "placas" placeholder = "Placas" type = "text" ></ons-input>
+                         <br>
+                        <br>
+                        <ons-input input-id = "telefono" placeholder = "Telefono" type = "number" ></ons-input>
+                        <br>
+                        <br>
+                        <ons-input input-id = "passw" placeholder = "Contraseña" type = "password"></ons-input>
+                        <br>
+                        <br>
+                        <ons-button  style="margin: 6px 0" onclick = "registrar()"><ons-icon icon="md-plus"></ons-icon> Registrar</ons-button>
+                    </center>
+                </ons-card>
             </ons-page>
         </template>
         
@@ -648,13 +119,13 @@
         </ons-popover>
         
         <!--Pagina Mapa-->
-        <template id="pageMap.html" >
+        <template id="pageMap.html">
             <ons-page id="pageMap.html">
                 <ons-toolbar>
-                    <div class="center" id="cent" style="font-size:8pt"></div>
+                    <div class="center" id="cent" style="font-size:9pt"></div>
                     <div class="center" id="Plcas" style="font-size:8pt"></div>
                     <div class="right">
-                        <ons-toolbar-button style="font-size:8pt" onclick="salir()">Cerrar Sesión</ons-toolbar-button>
+                        <ons-toolbar-button style="font-size:9pt" onclick="salir()">Cerrar Sesión</ons-toolbar-button>
                     </div>
                 </ons-toolbar>
                 
@@ -665,15 +136,16 @@
                 <ul class="list">
                   <li class="list-item">
                     <div class="list-item__left">
-                        <ons-button   style="font-size:9pt" onclick="CapturaGps()">Ocupar Lugar</ons-button>
+                        <ons-button   style="font-size:9pt" onclick="CapturaGps()"><ons-icon icon="md-plus"></ons-icon> Ocupar Lugar</ons-button>
                     </div>
                     <div class="list-item__right">
-                        <ons-button   style="font-size:9pt" onclick="eliminarGps()">Desocupar Lugar</ons-button>
+                        <ons-button   style="font-size:9pt" onclick="eliminarGps()">- Desocupar Lugar</ons-button>
                     </div>
                   </li>
                 </ul>
                 
                 <script>
+                    var refresh2 = setInterval('refresh()',10000);
                     var map;
                     var array_marcadores = new Array();
                     function initMap() {
@@ -752,6 +224,7 @@
                                             var numLon = parseFloat(lon);
                                             console.log(numLat);
                                             console.log(numLon);
+                                            
                                             marker = new google.maps.Marker({
                                               position: {lat: numLat, lng: numLon},
                                               map: map,
@@ -768,11 +241,10 @@
                         xhttp.send();                            
                     }
                 </script>
-                <script src="phonegap.js"></script>
             </ons-page>
-        </template>
-        
-        <script type="text/javascript" src="cordova.js"></script>
+        </template>  
     </body>
+    <script type="text/javascript" src="cordova.js"></script>
+    <script type="text/javascript" src="Main.js"></script>
 </html>
 
